@@ -8,7 +8,7 @@ import {
   useTomoWalletState,
   useWalletList
 } from '@tomo-inc/wallet-connect-sdk'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import {
   ChainType,
@@ -16,7 +16,7 @@ import {
   // @ts-ignore
 } from '@tomo-inc/wallet-connect-sdk/dist/state'
 import '@tomo-inc/wallet-connect-sdk/style.css'
-import { btcWalletList, cosmosWalletList } from '../main'
+import { btcWalletList, cosmosWalletList, Network } from '../main'
 
 // window.injectedTomo = {
 //   info: {
@@ -37,6 +37,9 @@ export default function Demo() {
   return (
     <TomoContextProvider
       style={style}
+      // NOTE @tomo-inc/wallet-connect-sdk에 코스모스테이션이 등록이 안되면 자동 리스팅은 안됨.
+      // NOTE 해당 레포를 통해서 커스텀 월렛 등록이 가능한 형태이지만, 커스텀 월렛은
+      // NOTE 디앱 개발자가 직접 아래 코드처럼 등록해야함.
       // @ts-ignore
       additionalWallets={[...btcWalletList, ...cosmosWalletList]}
     >
@@ -61,6 +64,7 @@ export function ChildComponent(props: ChildProps) {
   const btcIsConnect = tomoWalletState.bitcoin?.connected
 
   const [cosmosAddress, setCosmosAddress] = useState('')
+  const [bitcoinAddress, setBitcoinAddress] = useState('')
   const [curChainType, setCurChainType] = useState<ChainType>('bitcoin')
 
   const sendAtom = async (address: string, amount: string) => {
@@ -85,6 +89,17 @@ export function ChildComponent(props: ChildProps) {
     )
     console.log('result', result)
   }
+
+  useEffect(() => {
+    providers.bitcoinProvider?.on('accountChanged', () => {
+      console.log('first')
+    })
+
+    providers.bitcoinProvider?.on('accountsChanged', () => {
+      console.log('second')
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [providers.bitcoinProvider])
 
   return (
     <div className={'tomo-social tm-flex tm-h-full tm-w-full tm-text-sm'}>
@@ -206,6 +221,125 @@ export function ChildComponent(props: ChildProps) {
               btc getBTCTipHeight()
             </LodingButton>
 
+            {/* NOTE For Test */}
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.getNetwork()
+                  console.log('btc getNetwork', result)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc getNetwork()
+            </LodingButton>
+
+            {/* NOTE For Test */}
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.switchNetwork(
+                    Network.TESTNET
+                  )
+                  console.log('btc switch network', result)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc switch to testnet()
+            </LodingButton>
+
+            {/* NOTE For Test */}
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.switchNetwork(
+                    Network.SIGNET
+                  )
+                  console.log('btc switch network', result)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc switch to signet()
+            </LodingButton>
+
+            {/* NOTE For Test */}
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.getAddress()
+                  console.log('btc address ', result)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc ()
+            </LodingButton>
+
+            {/* NOTE For Test */}
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.switchNetwork(
+                    Network.MAINNET
+                  )
+                  console.log('btc switch network', result)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc switch to mainnet()
+            </LodingButton>
+
+            <div className={'tm-w-full'} />
+            <input
+              value={bitcoinAddress}
+              onChange={(e) => setBitcoinAddress(e.target.value)}
+            />
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.sendBitcoin(
+                    bitcoinAddress,
+                    1300
+                  )
+                  console.log(`send btc to ${bitcoinAddress}`, result)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              send btc()
+            </LodingButton>
+
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.pushTx(
+                    '02000000000101fcd432b3c65a28542b042f6f37815d98e3011a58b06847e9cc35e04e73cd48bc0100000000ffffffff021027000000000000160014de303a7dd3ca0d4c7ad4408063283d20e27eb82080171e0000000000160014267eefafde046a01bb4304013c1bcc0330f2032202473044022066967ef2cf14058b3dfadc8ed542623ac485d31f5e435b0cda1e0362cf4d47a002204df58e8c66763c8f5e347f9cf72b8c78022f3b74871268acde7a0a1dd39068b201210209375d3e71b0c54a7081e865a7139e7ef49c227e95e7aedb7ec0700819392a4500000000'
+                  )
+                  console.log('btc push tx result', result)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              {'push tx'}
+            </LodingButton>
+
             <LodingButton
               disabled={!btcIsConnect}
               onClick={async () => {
@@ -238,6 +372,21 @@ export function ChildComponent(props: ChildProps) {
               }}
             >
               btc signMessage('11', 'bip322-simple')
+            </LodingButton>
+
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result =
+                    await providers.bitcoinProvider?.signMessageBIP322('11')
+                  console.log('btc signMessage bip322-simple-custom', result)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc signMessage('11', 'bip322-simple-custom')
             </LodingButton>
           </div>
           <StyleSetting {...props} />
