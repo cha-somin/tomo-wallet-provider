@@ -16,7 +16,7 @@ import {
   // @ts-ignore
 } from '@tomo-inc/wallet-connect-sdk/dist/state'
 import '@tomo-inc/wallet-connect-sdk/style.css'
-import { btcWalletList, cosmosWalletList, Network } from '../main'
+import { btcWalletList, cosmosWalletList, InscriptionResult, Network, UTXO } from '../main'
 
 // window.injectedTomo = {
 //   info: {
@@ -70,6 +70,12 @@ export function ChildComponent(props: ChildProps) {
   const [testGetAddress, setTestGetAddress] = useState('')
   const [testGetBalance, setTestGetBalance] = useState(0)
   const [testGetNetwork, setTestGetNetwork] = useState('')
+  const [testSwitchNetwork, setTestSwitchNetwork] = useState('')
+  const [testgetBTCTipHeight, setTestgetBTCTipHeight] = useState(0)
+  const [testgetUtxos, setTestgetUtxos] = useState<UTXO[]>([]) 
+  const [testgetInscriptions, setTestgetInscriptions] = useState<InscriptionResult>() 
+
+
 
   const sendAtom = async (address: string, amount: string) => {
     if (!providers.cosmosProvider) {
@@ -485,6 +491,99 @@ export function ChildComponent(props: ChildProps) {
               btc getNetwork()
             </LodingButton>
             <div>{testGetNetwork}</div>
+          </div>
+
+          <div>
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                 await providers.bitcoinProvider?.switchNetwork(Network.MAINNET)
+                 setTestSwitchNetwork('mainnet')
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc switchNetworkToMain()
+            </LodingButton>
+            <div>{testSwitchNetwork}</div>
+          </div>
+
+          <div>
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                 await providers.bitcoinProvider?.switchNetwork(Network.SIGNET)
+                 setTestSwitchNetwork('signet')
+
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc switchNetworkToSignet()
+            </LodingButton>
+            <div>{testSwitchNetwork}</div>
+          </div>
+
+          <div>
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                 const result = await providers.bitcoinProvider?.getBTCTipHeight()
+                 setTestgetBTCTipHeight(result || 0)
+
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc getBTCTipHeight()
+            </LodingButton>
+            <div>{testgetBTCTipHeight}</div>
+          </div>
+
+          <div>
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+
+                 const result = await providers.bitcoinProvider?.getUtxos(testGetAddress)
+                 setTestgetUtxos(result || [])
+                 console.log(result)
+
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc getUtxos()
+            </LodingButton>
+            <div>{testgetUtxos.find(x=>x!==undefined)?.txid || 'getAddress 먼저 실행'}</div>
+          </div>
+
+          <div>
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+
+                 const result = await providers.bitcoinProvider?.getInscriptions()
+                 setTestgetInscriptions(result)
+                 console.log(result)
+
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc getInscriptions()
+            </LodingButton>
+            <div>{`${testgetInscriptions?.total}`}</div>
           </div>
 
 
