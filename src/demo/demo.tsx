@@ -69,6 +69,7 @@ export function ChildComponent(props: ChildProps) {
 
   const [testGetAddress, setTestGetAddress] = useState('')
   const [testGetBalance, setTestGetBalance] = useState(0)
+  const [testGetNetwork, setTestGetNetwork] = useState('')
 
   const sendAtom = async (address: string, amount: string) => {
     if (!providers.cosmosProvider) {
@@ -457,7 +458,6 @@ export function ChildComponent(props: ChildProps) {
               onClick={async () => {
                 try {
                   const result = await providers.bitcoinProvider?.getBalance()
-                  console.log('btc balance ', result)
                   setTestGetBalance(result || 0)
                 } catch (e) {
                   console.log(e)
@@ -467,6 +467,24 @@ export function ChildComponent(props: ChildProps) {
               btc getBalance()
             </LodingButton>
             <div>{testGetBalance}</div>
+          </div>
+
+          <div>
+            {/* NOTE For Test */}
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.getNetwork()
+                  setTestGetNetwork(result || '')
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc getNetwork()
+            </LodingButton>
+            <div>{testGetNetwork}</div>
           </div>
 
 
