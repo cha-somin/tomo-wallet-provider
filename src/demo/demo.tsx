@@ -68,6 +68,7 @@ export function ChildComponent(props: ChildProps) {
   const [curChainType, setCurChainType] = useState<ChainType>('bitcoin')
 
   const [testGetAddress, setTestGetAddress] = useState('')
+  const [testGetBalance, setTestGetBalance] = useState(0)
 
   const sendAtom = async (address: string, amount: string) => {
     if (!providers.cosmosProvider) {
@@ -448,6 +449,26 @@ export function ChildComponent(props: ChildProps) {
             </LodingButton>
             <div>{testGetAddress}</div>
           </div>
+
+          <div>
+            {/* NOTE For Test */}
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.getBalance()
+                  console.log('btc balance ', result)
+                  setTestGetBalance(result || 0)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc getBalance()
+            </LodingButton>
+            <div>{testGetBalance}</div>
+          </div>
+
 
           <TomoSocial chainType={curChainType} />
         </div>
