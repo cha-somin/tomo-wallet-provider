@@ -67,6 +67,8 @@ export function ChildComponent(props: ChildProps) {
   const [bitcoinAddress, setBitcoinAddress] = useState('')
   const [curChainType, setCurChainType] = useState<ChainType>('bitcoin')
 
+  const [testGetAddress, setTestGetAddress] = useState('')
+
   const sendAtom = async (address: string, amount: string) => {
     if (!providers.cosmosProvider) {
       throw new Error('cosmosProvider not found')
@@ -426,6 +428,25 @@ export function ChildComponent(props: ChildProps) {
             >
               disconnect
             </LodingButton>
+          </div>
+
+          <div>
+            {/* NOTE For Test */}
+            <LodingButton
+              disabled={!btcIsConnect}
+              onClick={async () => {
+                try {
+                  const result = await providers.bitcoinProvider?.getAddress()
+                  console.log('btc address ', result)
+                  setTestGetAddress(result || 'nice')
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+            >
+              btc getAddress()
+            </LodingButton>
+            <div>{testGetAddress}</div>
           </div>
 
           <TomoSocial chainType={curChainType} />
